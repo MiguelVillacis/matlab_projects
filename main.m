@@ -3,7 +3,7 @@ addpath('func/');
 addpath('func/geo/');
 addpath('func/mesh/');
 addpath('func/classes/');
-addpath('src/');
+% addpath('src/');
 addpath('ui/');
 
 % uipt;
@@ -19,8 +19,8 @@ geometryFromEdges(model, g);
 mesh = TriMeshObj(g,3);
 mesh.generateMesh;
 
-plot(mesh.Nodes(1,:), mesh.Nodes(2,:), 'k.', 'MarkerSize', 2);
-axis equal;
+% plot(mesh.Nodes(1,:), mesh.Nodes(2,:), 'k.', 'MarkerSize', 2);
+% axis equal;
 
 
 
