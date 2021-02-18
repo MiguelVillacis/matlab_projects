@@ -17,14 +17,24 @@ k = zeros(2*nnot,2*nnot);
 c = E/(1-(v^2));
 b = c*[1 v 0. ;v 1 0. ;0. 0. .5*(1-v)];
 
+% Derivative shape matrix
+ds = zeros(2,nxe);
+dc = zeros(2,nxe);
+
+% Element area matrix
+ae = zeros(nelt,1);
+
+se=zeros(nelt,nxe,nxe);
+fe=zeros(nelt,nxe);
+
 % Structure of node coordinates for element
 for i=1:nelt
-    x = [mesh.Nodes(1, mesh.Elements(1, i)); ...
-         mesh.Nodes(1, mesh.Elements(2, i)); ...
-         mesh.Nodes(1, mesh.Elements(3, i))];
-    y = [mesh.Nodes(2, mesh.Elements(1, i)); ...
-         mesh.Nodes(2, mesh.Elements(2, i)); ...
-         mesh.Nodes(2, mesh.Elements(3, i))];
+    x = zeros(nxe,1);
+    y = zeros(nxe,1);
+    for j=1:nxe
+        x(j) = mesh.Nodes(1, mesh.Elements(j, i));
+        y(j) = mesh.Nodes(2, mesh.Elements(j, i));
+    end
      eCoord(i).e = [x,y];
 end
 
@@ -32,11 +42,12 @@ end
 nf = [1:2:2*nnot;2:2:2*nnot]';
 
 % Degree of freedom connectivity matrix inicialization
-vdir = zeros(nelt, 6);
+vdir = zeros(nelt, 12);
+
 
 for i=1:nelt
     ci = 0;
-    for j=1:3
+    for j=1:6
         for k=1:2
             ci = ci+1;
             vdir(i,ci)=nf(mesh.Elements(j,i),k);
@@ -54,16 +65,23 @@ for i=1:nelt
         eta = gqp(ig,2);
         w = gqp(ig,3);
         
-        %Jacobian Matrix
-        x1 = eCoord(i).e(1,1);
-        x2 = eCoord(i).e(3,1);
-        x3 = eCoord(i).e(3,1);
-        y1 = eCoord(i).e(1,2);
-        y2 = eCoord(i).e(2,2);
-        y3 = eCoord(i).e(3,2);
+        %Derivative Shape matrix
+        ds(1,1)=4*xi-1;
+        ds(1,2)=4*eta;
+        ds(1,3)=4-8*xi-4*eta;
+        ds(1,4)=0;
+        ds(1,5)=-4*eta;
+        ds(1,6)=4*eta+4*xi-3;
+        ds(2,1)=0;
+        ds(2,2)=4*xi;
+        ds(2,3)=-4*xi;
+        ds(2,4)=4*eta-1;
+        ds(2,5)=4-4*xi-8*eta;
+        ds(2,6)=4*eta+4*xi-3;
+        
 
         % Jacobian matrix
-        jm = [(x2-x1) (y2-y1); (x3-x1) (y3-y1)];
+        jm = ds*eCoord(i).e;
 
         % Jacobian matrix determinant
         djm = det(jm);
@@ -71,11 +89,27 @@ for i=1:nelt
         % Jacobian matrix inversed
         ijm = inv(jm);
         
+        % Area of element
+        ae(i) = djm/2;
         
-     
+        dc=jm\ds;
+        
+        for k=1:nxe
+            for j=1:nxe
+                se(i,k,j)=se(i,k,j)+djm/6*(dc(1,k)*dc(1,j)+dc(2,k)*dc(2,j));
+            end
+        end
+%         fe(ne,1)=fe(ne,1)+Je(ne)*djm/6*xi*(2*xi-1);
+%         fe(ne,2)=fe(ne,2)+Je(ne)*djm/6*xi*eta*4;
+%         fe(ne,3)=fe(ne,3)+Je(ne)*djm/6*xi*(1-xi-eta)*4;
+%         fe(ne,4)=fe(ne,4)+Je(ne)*djm/6*eta*(2*eta-1);
+%         fe(ne,5)=fe(ne,5)+Je(ne)*djm/6*eta*(1-xi-eta)*4;
+%         fe(ne,6)=fe(ne,6)+Je(ne)*djm/6*(1-xi-eta)*(2*(1-xi-eta)-1);  
     end
     
         
 end
+
+disp('Hi....');
 
 end
