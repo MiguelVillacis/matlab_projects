@@ -8,22 +8,19 @@ addpath('ui/');
 
 % uipt;
 
-% g = rhplate(50,200,20);
-g = holeplate(40,200,100,20,10);
-props = [210000, 0.3];
-boundary= [];
+% g = holeplate(40,200,100,20,15);
+% g = dholeplate(40,200,100,20,100,20,15);
+g = tplate(40,200,100,20,15);
+% g = rhplate(40,200,15);
 
-model = createpde;
-geometryFromEdges(model, g);
-
-mesh = TriMeshObj(g,3);
-mesh.generateMesh;
-
-% plot(mesh.Nodes(1,:), mesh.Nodes(2,:), 'k.', 'MarkerSize', 2);
-% axis equal;
+props = [200E3 0.25];
+load = 100;
+flag = 3;
+mmesh = gtrimesh(g,3);
 
 
+mp = mapped(mmesh,props,load,flag);
 
-femtrisolver(mesh,boundary,props);
+plot(mp.Displacement.x);
 
 

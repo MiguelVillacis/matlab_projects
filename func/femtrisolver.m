@@ -1,8 +1,9 @@
-function femtrisolver(mesh,boundary, props)
+function results = femtrisolver(mesh,load, props, mmesh, flag)
 
 % Constants
 nxe = 6;
 dof = 2;
+% Gauss quadrature points
 gqp = [0.5 0 1/6;0 0.5 1/6; 0.5 0.5 1/6];
 E = props(1);       % Young modulus in MPa
 v = props(2);       % Poisson coefficient
@@ -26,6 +27,7 @@ ae = zeros(nelt,1);
 
 se=zeros(nelt,nxe,nxe);
 fe=zeros(nelt,nxe);
+mp = mapped(mmesh,props,load,flag);
 
 % Structure of node coordinates for element
 for i=1:nelt
@@ -54,6 +56,24 @@ for i=1:nelt
         end
     end
 end
+
+constrained=zeros(nnot,1);
+constrained(11:15)=1;
+n_const=sum(constrained);
+
+var_map=zeros(nnot,1);
+n_var=0;
+for i=1:nnot
+    if(constrained(i)==0)
+        n_var=n_var+1;
+        var_map(i)=n_var;
+    end
+end
+
+
+% defined current densities
+Je=zeros(nelt,1);
+Je(1)=10;
 
 % General stiffness matrix integration (Gauss Quadrature) 
 for i=1:nelt
@@ -99,17 +119,18 @@ for i=1:nelt
                 se(i,k,j)=se(i,k,j)+djm/6*(dc(1,k)*dc(1,j)+dc(2,k)*dc(2,j));
             end
         end
-%         fe(ne,1)=fe(ne,1)+Je(ne)*djm/6*xi*(2*xi-1);
-%         fe(ne,2)=fe(ne,2)+Je(ne)*djm/6*xi*eta*4;
-%         fe(ne,3)=fe(ne,3)+Je(ne)*djm/6*xi*(1-xi-eta)*4;
-%         fe(ne,4)=fe(ne,4)+Je(ne)*djm/6*eta*(2*eta-1);
-%         fe(ne,5)=fe(ne,5)+Je(ne)*djm/6*eta*(1-xi-eta)*4;
-%         fe(ne,6)=fe(ne,6)+Je(ne)*djm/6*(1-xi-eta)*(2*(1-xi-eta)-1);  
-    end
-    
         
+        fe(i,1)=fe(i,1)+Je(ne)*djm/6*xi*(2*xi-1);
+        fe(i,2)=fe(i,2)+Je(ne)*djm/6*xi*eta*4;
+        fe(i,3)=fe(i,3)+Je(ne)*djm/6*xi*(1-xi-eta)*4;
+        fe(i,4)=fe(i,4)+Je(ne)*djm/6*eta*(2*eta-1);
+        fe(i,5)=fe(i,5)+Je(ne)*djm/6*eta*(1-xi-eta)*4;
+        fe(i,6)=fe(i,6)+Je(ne)*djm/6*(1-xi-eta)*(2*(1-xi-eta)-1);
+        
+    end
+       
 end
 
-disp('Hi....');
+results = mp;
 
 end

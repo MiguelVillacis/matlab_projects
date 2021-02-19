@@ -1,8 +1,8 @@
-function gmesh = gtrimesh(g, hmax)
+function model = gtrimesh(g, hmax)
 
-model = createpde;
+model = createpde('Structural', 'static-planestress');
 geometryFromEdges(model,g);
-gmesh = generateMesh(model, 'Hmax', hmax, 'GeometricOrder','quadratic');
+generateMesh(model, 'Hmax', hmax, 'GeometricOrder','quadratic');
 
 end
 

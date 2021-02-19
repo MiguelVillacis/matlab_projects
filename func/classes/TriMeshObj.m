@@ -17,9 +17,9 @@ classdef TriMeshObj < handle
         end
         
         function obj = generateMesh(obj)
-            mesh = gtrimesh(obj.g, obj.hmax);
-            obj.Nodes = mesh.Nodes;
-            obj.Elements = mesh.Elements;
+            mmesh = gtrimesh(obj.g, obj.hmax);
+            obj.Nodes = mmesh.Mesh.Nodes;
+            obj.Elements = mmesh.Mesh.Elements;
         end
     end
 end
