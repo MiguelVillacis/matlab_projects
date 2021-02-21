@@ -26,10 +26,5 @@ structuralBoundaryLoad(mmesh,'Edge',ef,'SurfaceTraction',[load;0]);
 generateMesh(mmesh);
 mpnodes = solve(mmesh);
 
-figure
-pdeplot(mmesh,'XYData',mpnodes.Stress.sxx,'ColorMap','jet')
-axis equal
-title 'Normal Stress Along x-Direction';
-
 end
 
